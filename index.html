@@ -1,1 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>JARVIS AI</title>
 
+<style>
+body {
+  margin: 0;
+  background: #06111f;
+  color: #00eaff;
+  font-family: Arial, sans-serif;
+  text-align: center;
+  padding: 25px 15px;
+}
+h1 {
+  margin-top: 35px;
+  letter-spacing: 5px;
+}
+.circle {
+  width: 180px;
+  height: 180px;
+  border: 3px solid #00eaff;
+  border-radius: 50%;
+  margin: 45px auto 25px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 55px;
+  box-shadow: 0 0 30px #00eaff;
+}
+button {
+  background: #00eaff;
+  color: #06111f;
+  border: none;
+  border-radius: 25px;
+  padding: 15px 25px;
+  font-size: 17px;
+  font-weight: bold;
+  margin: 10px;
+}
+#status, #result {
+  margin: 25px auto;
+  max-width: 500px;
+  line-height: 1.6;
+}
+input {
+  padding: 13px;
+  width: 65%;
+  border-radius: 10px;
+  border: 1px solid #00eaff;
+}
+</style>
+</head>
+
+<body>
+
+<h1>J.A.R.V.I.S</h1>
+<p>PERSONAL AI ASSISTANT</p>
+
+<div class="circle">◉</div>
+
+<button onclick="startListening()">🎙 ACTIVATE JARVIS</button>
+
+<p id="status">System ready.</p>
+<p id="result">Waiting for your command...</p>
+
+<input id="reminder" placeholder="Enter a reminder">
+<button onclick="setReminder()">Set Reminder</button>
+
+<script>
+const statusText = document.getElementById("status");
+const resultText = document.getElementById("result");
+
+function speak(text) {
+  speechSynthesis.cancel();
+  const voice = new SpeechSynthesisUtterance(text);
+  voice.lang = "en-IN";
+  speechSynthesis.speak(voice);
+}
+
+function startListening() {
+  const SpeechRecognition =
+    window.SpeechRecognition ||
+    window.webkitSpeechRecognition;
+
+  if (!SpeechRecognition) {
+    statusText.innerText = "Voice recognition is not supported.";
+    speak("Voice recognition is not supported in this browser.");
+    return;
+  }
+
+  const recognition = new SpeechRecognition();
+  recognition.lang = "en-IN";
+  recognition.continuous = false;
+
+  statusText.innerText = "Listening...";
+
+  recognition.onresult = function(event) {
+    const command =
+      event.results[0][0].transcript.toLowerCase();
+
+    resultText.innerText = "You: " + command;
+    respond(command);
+  };
+
+  recognition.onerror = function(event) {
+    statusText.innerText = "Error: " + event.error;
+  };
+
+  recognition.onend = function() {
+    statusText.innerText = "System ready.";
+  };
+
+  recognition.start();
+}
+
+function respond(command) {
+  let answer = "";
+
+  if (command.includes("hello")) {
+    answer = "Hello! I am JARVIS. How can I help you?";
+  }
+  else if (command.includes("your name")) {
+    answer = "I am JARVIS, your personal assistant.";
+  }
+  else if (command.includes("time")) {
+    answer = "The time is " +
+      new Date().toLocaleTimeString();
+  }
+  else if (command.includes("date")) {
+    answer = "Today's date is " +
+      new Date().toLocaleDateString();
+  }
+  else if (command.includes("how are you")) {
+    answer = "I am functioning perfectly. Thank you!";
+  }
+  else if (command.includes("study")) {
+    answer = "Stay focused. Small progress every day leads to success.";
+  }
+  else if (command.includes("search")) {
+    const query = command.replace("search", "").trim();
+    answer = "Searching the internet.";
+    window.open(
+      "https://www.google.com/search?q=" +
+      encodeURIComponent(query),
+      "_blank"
+    );
+  }
+  else if (command.includes("goodbye")) {
+    answer = "Goodbye. JARVIS signing off.";
+  }
+  else {
+    answer = "Sorry, I don't understand that command yet.";
+  }
+
+  resultText.innerText += "\nJARVIS: " + answer;
+  speak(answer);
+}
+
+function setReminder() {
+  const message =
+    document.getElementById("reminder").value.trim();
+
+  if (!message) {
+    speak("Please enter a reminder.");
+    return;
+  }
+
+  localStorage.setItem("jarvisReminder", message);
+  resultText.innerText = "Reminder saved: " + message;
+  speak("Your reminder has been saved.");
+}
+</script>
+
+</body>
+</html>
